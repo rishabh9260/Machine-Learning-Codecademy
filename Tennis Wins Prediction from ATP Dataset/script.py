@@ -2,6 +2,7 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 
@@ -61,15 +62,30 @@ useful_outcomes = ["Wins", "Lossed", "Winnings"]
 
 ## Defining linearReg function that splits and models the passed data with score analysis
 
-def linearReg(x, y, xlabel, ylabel):
+def linearReg(x, y, xlabel, ylabel, scale_flag=False):
+  #Reshaping for Univariate Linear Regression and standardizing for multivariate Linear Regression
   if len(x.shape) < 2:
     x = np.array(x).reshape(-1,1)
+  else:
+    scale_flag = True
 
+  #Initializing the model and splitting the dataset
   reg = LinearRegression()
   X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
+  #Standardizing
+  scaler = StandardScaler()
+  scaler.fit_transform(X_train)
+  scaler.transform(X_test)
+  
+  #Training the model and testing the model
   reg.fit(X_train, y_train)
   y_predict = reg.predict(X_test)
+  
+  #Printing the R^2 score
   print(reg.score(X_test, y_test), xlabel + " vs. " + ylabel)
+  
+  #Plotting the difference in predicted values
   plt.figure()
   plt.grid(True)
   plt.scatter(y_predict, y_test, alpha=0.4)
